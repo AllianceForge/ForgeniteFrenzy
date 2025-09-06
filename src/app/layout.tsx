@@ -2,6 +2,7 @@
 import type { Metadata } from 'next';
 import { Toaster } from "@/components/ui/toaster"
 import { GameProvider } from '@/contexts/GameContext';
+import { CharacterProvider } from '@/contexts/CharacterContext';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -26,8 +27,10 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground">
         <GameProvider>
-          {children}
-          <Toaster />
+          <CharacterProvider>
+            {children}
+            <Toaster />
+          </CharacterProvider>
         </GameProvider>
       </body>
     </html>
