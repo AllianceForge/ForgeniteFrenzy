@@ -1,0 +1,25 @@
+name: Deploy to Firebase Hosting on merge
+
+on:
+  push:
+    branches:
+      - main # Cambia esto si tu rama principal no es 'main'
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - run: npm ci
+
+    - run: npm run build
+
+    - run: npm install -g firebase-tools
+
+    - run: firebase deploy --only hosting --token ${{ secrets.FIREBASE_TOKEN }}
