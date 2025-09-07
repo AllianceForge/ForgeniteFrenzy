@@ -1,0 +1,15 @@
+
+> nextn@0.1.0 dev
+> next dev --turbopack
+
+   ▲ Next.js 15.5.2 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://10.1.0.128:3000
+
+ ✓ Starting...
+ ✓ Ready in 1025ms
+ ○ Compiling / ...
+ ✓ Compiled / in 8.6s
+ GET / 200 in 9589ms
+Shutting down all Genkit servers...
+[?25h
