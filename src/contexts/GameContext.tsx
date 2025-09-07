@@ -440,13 +440,27 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, [coreMessages, isInitialSetupDone]);
 
+  /**
+   * Complete the initial player setup during registration
+   * This function creates the player profile with the chosen commander gender
+   * 
+   * @param name - The player's chosen callsign
+   * @param sex - The commander gender ('male' | 'female') determined by avatar selection
+   * @param avatarUrl - The selected avatar image URL
+   * @param country - The player's selected country
+   * @param referredByCode - Optional referral code from another player
+   * 
+   * Important: The 'sex' parameter sets the persistent commanderSex in the profile,
+   * which becomes the default gender for all future Tap Tap sessions. Players can
+   * temporarily override this in individual Tap Tap sessions without affecting this setting.
+   */
   const completeInitialSetup = (name: string, sex: 'male' | 'female', avatarUrl: string, country: string, referredByCode?: string) => {
     const now = Date.now();
     const newProfileData: PlayerProfile = {
       ...defaultPlayerProfile,
       id: crypto.randomUUID(),
       name,
-      commanderSex: sex,
+      commanderSex: sex, // Set the persistent commander gender from avatar selection
       avatarUrl,
       country,
       currentSeasonId: SEASONS_DATA[0].id,
@@ -1096,9 +1110,23 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   }, []);
   
+  /**
+   * Update player profile with new name, avatar, and commander gender
+   * This function updates the persistent player profile data and is used for profile editing
+   * 
+   * @param name - The new player name/callsign
+   * @param avatarUrl - The new avatar image URL
+   * @param commanderSex - The new commander gender ('male' | 'female')
+   * 
+   * Important: This updates the persistent profile commanderSex, which becomes the new default
+   * gender for all future Tap Tap sessions. Any active session-specific gender overrides
+   * in the Tap Tap game are independent of this persistent setting.
+   */
   const updatePlayerProfile = useCallback((name: string, avatarUrl: string, commanderSex: 'male' | 'female') => {
     setPlayerProfile(prev => {
       if (!prev) return null;
+      // Update the persistent profile with the new commander gender
+      // This becomes the new default for Tap Tap sessions
       return { ...prev, name, avatarUrl, commanderSex };
     });
     addCoreMessage({type: 'system_alert', content: 'Player profile updated.'});
