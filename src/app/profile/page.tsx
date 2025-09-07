@@ -13,17 +13,22 @@ import { Check, UserCircle, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
+/**
+ * Avatar configuration for profile editing
+ * Each avatar has a 'sex' property that determines the persistent commander gender
+ * Changing the avatar in profile edit updates the default gender for all future Tap Tap sessions
+ */
 const ALL_AVATARS = [
-    // Female
-    { url: "https://picsum.photos/seed/female1/200", sex: 'female', hint: 'female commander' },
-    { url: "https://picsum.photos/seed/female2/200", sex: 'female', hint: 'female commander' },
-    { url: "https://picsum.photos/seed/female3/200", sex: 'female', hint: 'female commander' },
-    { url: "https://picsum.photos/seed/female4/200", sex: 'female', hint: 'female commander' },
-    // Male
-    { url: "https://picsum.photos/seed/male1/200", sex: 'male', hint: 'male commander' },
-    { url: "https://picsum.photos/seed/male2/200", sex: 'male', hint: 'male commander' },
-    { url: "https://picsum.photos/seed/male3/200", sex: 'male', hint: 'male commander' },
-    { url: "https://picsum.photos/seed/male4/200", sex: 'male', hint: 'male commander' },
+    // Female avatars - selecting any of these sets commanderSex to 'female' in the profile
+    { url: "https://picsum.photos/seed/female1/200", sex: 'female' as const, hint: 'female commander' },
+    { url: "https://picsum.photos/seed/female2/200", sex: 'female' as const, hint: 'female commander' },
+    { url: "https://picsum.photos/seed/female3/200", sex: 'female' as const, hint: 'female commander' },
+    { url: "https://picsum.photos/seed/female4/200", sex: 'female' as const, hint: 'female commander' },
+    // Male avatars - selecting any of these sets commanderSex to 'male' in the profile  
+    { url: "https://picsum.photos/seed/male1/200", sex: 'male' as const, hint: 'male commander' },
+    { url: "https://picsum.photos/seed/male2/200", sex: 'male' as const, hint: 'male commander' },
+    { url: "https://picsum.photos/seed/male3/200", sex: 'male' as const, hint: 'male commander' },
+    { url: "https://picsum.photos/seed/male4/200", sex: 'male' as const, hint: 'male commander' },
 ];
 
 
@@ -39,10 +44,17 @@ const ProfilePage: React.FC = () => {
     }
   }, [playerProfile]);
 
+  /**
+   * Handle saving profile changes
+   * This updates the persistent commander gender in the player profile
+   * The new gender becomes the default for all future Tap Tap sessions
+   */
   const handleSave = () => {
     if (playerProfile) {
       // Find the selected avatar object to determine the sex
       const avatarData = ALL_AVATARS.find(a => a.url === selectedAvatar) || ALL_AVATARS[0];
+      // Update the profile with new name, avatar, and commander gender
+      // This persists the commander gender as the new default for Tap Tap sessions
       updatePlayerProfile(name, selectedAvatar, avatarData.sex);
     }
   };
@@ -91,7 +103,7 @@ const ProfilePage: React.FC = () => {
           <Card>
             <CardHeader>
                 <CardTitle>Select Avatar</CardTitle>
-                <CardDescription>Choose an avatar that matches your style.</CardDescription>
+                <CardDescription>Choose an avatar that matches your style. This determines your default commander gender.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-4 gap-2 sm:gap-4">
