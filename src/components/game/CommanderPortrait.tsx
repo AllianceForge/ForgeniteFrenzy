@@ -13,7 +13,7 @@ interface CommanderPortraitProps {
 }
 
 const CommanderPortrait: React.FC<CommanderPortraitProps> = ({ onTap }) => {
-  const { playerProfile } = useGame();
+  const { playerProfile, temporaryCommanderOverrides } = useGame();
   const [isTapped, setIsTapped] = useState(false);
   
   if (!playerProfile) {
@@ -25,14 +25,21 @@ const CommanderPortrait: React.FC<CommanderPortraitProps> = ({ onTap }) => {
     );
   }
   
-  const { commanderSex, currentTierColor, equippedUniformPieces } = playerProfile;
+  // Use temporary overrides if available, otherwise use profile values
+  const effectiveCommanderSex = temporaryCommanderOverrides?.commanderSex || playerProfile.commanderSex;
+  const effectiveAvatarUrl = temporaryCommanderOverrides?.avatarUrl || playerProfile.avatarUrl;
+  const { currentTierColor, equippedUniformPieces } = playerProfile;
 
   const getCommanderImage = () => {
     const equippedCount = equippedUniformPieces?.length || 0;
-    const sex = commanderSex;
+    const sex = effectiveCommanderSex;
 
-    // Base Images (No uniform pieces)
+    // Base Images (No uniform pieces) - Use profile avatar if available
     if (equippedCount === 0) {
+      // If we have a profile avatar URL, use it; otherwise fall back to default images
+      if (effectiveAvatarUrl) {
+        return { src: effectiveAvatarUrl, hint: `${sex} commander profile avatar` };
+      }
       return sex === 'male' 
         ? { src: "https://i.imgur.com/iuRJVBZ.png", hint: "fullbody male commander" }
         : { src: "https://i.imgur.com/BQHeVWp.png", hint: "fullbody female commander" };
@@ -56,7 +63,7 @@ const CommanderPortrait: React.FC<CommanderPortraitProps> = ({ onTap }) => {
   };
 
   const { src: imageUrl, hint: dataAiHint } = getCommanderImage();
-  const altText = commanderSex === 'male' ? "Male Commander" : "Female Commander";
+  const altText = effectiveCommanderSex === 'male' ? "Male Commander" : "Female Commander";
 
   const handleInteraction = () => {
     onTap();
@@ -106,7 +113,7 @@ const CommanderPortrait: React.FC<CommanderPortraitProps> = ({ onTap }) => {
           "absolute flex items-center justify-center",
           "w-[34px] h-[38px]",
           "left-1/2 -translate-x-1/2 -translate-y-1/2",
-          commanderSex === 'male' ? 'top-[31%]' : 'top-[32%]',
+          effectiveCommanderSex === 'male' ? 'top-[31%]' : 'top-[32%]',
           "bg-[hsl(var(--dynamic-commander-glow))] text-primary-foreground",
           "font-headline font-bold text-sm tracking-wider",
            "pointer-events-none"
