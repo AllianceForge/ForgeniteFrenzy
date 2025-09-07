@@ -67,6 +67,12 @@ interface GameContextType {
   toggleMusic: () => void;
   // Profile editing
   updatePlayerProfile: (name: string, avatarUrl: string, commanderSex: 'male' | 'female') => void;
+  // Temporary session commander appearance overrides
+  temporaryCommanderOverrides: {
+    avatarUrl?: string;
+    commanderSex?: 'male' | 'female';
+  } | null;
+  setTemporaryCommanderOverrides: (overrides: { avatarUrl?: string; commanderSex?: 'male' | 'female' } | null) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -132,6 +138,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [rewardedAdCooldown, setRewardedAdCooldown] = useState(0);
   const [isWatchingAd, setIsWatchingAd] = useState(false);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [temporaryCommanderOverrides, setTemporaryCommanderOverrides] = useState<{
+    avatarUrl?: string;
+    commanderSex?: 'male' | 'female';
+  } | null>(null);
 
 
   const { toast } = useToast();
@@ -1151,6 +1161,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isMusicPlaying,
         toggleMusic,
         updatePlayerProfile,
+        temporaryCommanderOverrides,
+        setTemporaryCommanderOverrides,
     }}>
       {children}
     </GameContext.Provider>
