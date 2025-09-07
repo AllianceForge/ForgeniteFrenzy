@@ -175,6 +175,7 @@ export interface ChatMessage {
   content: string;
   timestamp: number;
   isPlayer: boolean;
+  senderType?: 'user' | 'ai' | 'system'; // New field to differentiate sender types for styling
 }
 
 // Daily Quests System Types
