@@ -9,10 +9,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 
 interface CommanderPortraitProps {
+  /** Callback function when the commander is tapped */
   onTap: () => void;
+  /** 
+   * Optional session-specific commander gender override
+   * If provided, this gender will be used instead of the profile's commanderSex
+   * This allows temporary gender changes during Tap Tap sessions without affecting the profile
+   */
+  sessionCommanderGender?: 'male' | 'female';
 }
 
-const CommanderPortrait: React.FC<CommanderPortraitProps> = ({ onTap }) => {
+const CommanderPortrait: React.FC<CommanderPortraitProps> = ({ onTap, sessionCommanderGender }) => {
   const { playerProfile } = useGame();
   const [isTapped, setIsTapped] = useState(false);
   
@@ -25,11 +32,26 @@ const CommanderPortrait: React.FC<CommanderPortraitProps> = ({ onTap }) => {
     );
   }
   
-  const { commanderSex, currentTierColor, equippedUniformPieces } = playerProfile;
+  // Use session gender override if provided, otherwise fall back to profile default
+  // This allows temporary gender changes during Tap Tap sessions without affecting the persistent profile
+  const effectiveCommanderSex = sessionCommanderGender || playerProfile.commanderSex;
+  const { currentTierColor, equippedUniformPieces } = playerProfile;
 
+  /**
+   * Get the appropriate commander image based on equipped uniform pieces and gender
+   * This function determines which image to display based on:
+   * 1. The effective commander gender (session override or profile default)
+   * 2. The number of uniform pieces equipped (determines armor stage)
+   * 
+   * Image stages:
+   * - Stage 0: Base commander (no uniform pieces)
+   * - Stage 1: Basic gear (gloves + boots, 1-2 pieces)
+   * - Stage 2: Combat armor (gloves + boots + belt/rig, 3-4 pieces)
+   * - Stage 3: Full uniform (complete set with helmet, 5+ pieces)
+   */
   const getCommanderImage = () => {
     const equippedCount = equippedUniformPieces?.length || 0;
-    const sex = commanderSex;
+    const sex = effectiveCommanderSex; // Use the effective gender (session or profile)
 
     // Base Images (No uniform pieces)
     if (equippedCount === 0) {
@@ -56,8 +78,13 @@ const CommanderPortrait: React.FC<CommanderPortraitProps> = ({ onTap }) => {
   };
 
   const { src: imageUrl, hint: dataAiHint } = getCommanderImage();
-  const altText = commanderSex === 'male' ? "Male Commander" : "Female Commander";
+  // Create alt text based on the effective gender (session override or profile default)
+  const altText = effectiveCommanderSex === 'male' ? "Male Commander" : "Female Commander";
 
+  /**
+   * Handle tap/touch interactions on the commander portrait
+   * This triggers the tap callback and provides visual feedback
+   */
   const handleInteraction = () => {
     onTap();
     setIsTapped(true);
@@ -106,7 +133,8 @@ const CommanderPortrait: React.FC<CommanderPortraitProps> = ({ onTap }) => {
           "absolute flex items-center justify-center",
           "w-[34px] h-[38px]",
           "left-1/2 -translate-x-1/2 -translate-y-1/2",
-          commanderSex === 'male' ? 'top-[31%]' : 'top-[32%]',
+          // Position the AF logo based on effective gender (session override or profile default)
+          effectiveCommanderSex === 'male' ? 'top-[31%]' : 'top-[32%]',
           "bg-[hsl(var(--dynamic-commander-glow))] text-primary-foreground",
           "font-headline font-bold text-sm tracking-wider",
            "pointer-events-none"

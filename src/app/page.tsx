@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import AppLayout from '@/components/layout/AppLayout';
 import CommanderPortrait from '@/components/game/CommanderPortrait';
+import CommanderGenderSwitch from '@/components/game/CommanderGenderSwitch';
 import PlayerSetup from '@/components/player/PlayerSetup';
 import { useGame } from '@/contexts/GameContext';
 import { Button } from '@/components/ui/button';
@@ -31,7 +32,42 @@ export default function HomePage() {
   const [newUserIntroPhase, setNewUserIntroPhase] = useState<NewUserIntroPhase>('pre');
   const [timeLeftForTapRegen, setTimeLeftForTapRegen] = useState<number | null>(null);
   
+  /**
+   * Session-specific commander gender state for Tap Tap gameplay
+   * This allows temporary gender changes during the current session without affecting the persistent profile.
+   * When null, the profile's default commanderSex is used.
+   */
+  const [sessionCommanderGender, setSessionCommanderGender] = useState<'male' | 'female' | null>(null);
+  
   const spaceImageUrl = "https://i.imgur.com/foWm9FG.jpeg";
+  
+  /**
+   * Initialize session commander gender when player profile loads
+   * The session starts with the player's profile default gender
+   */
+  useEffect(() => {
+    if (playerProfile && sessionCommanderGender === null) {
+      setSessionCommanderGender(playerProfile.commanderSex);
+    }
+  }, [playerProfile, sessionCommanderGender]);
+
+  /**
+   * Handle session commander gender changes (Tap Tap session only)
+   * This does not affect the persistent player profile
+   */
+  const handleSessionGenderChange = (gender: 'male' | 'female') => {
+    setSessionCommanderGender(gender);
+  };
+
+  /**
+   * Reset session commander gender to profile default
+   * This restores the commander to the gender set in the player's profile
+   */
+  const handleResetToDefaultGender = () => {
+    if (playerProfile) {
+      setSessionCommanderGender(playerProfile.commanderSex);
+    }
+  };
   
   useEffect(() => {
     if (!playerProfile || !isInitialSetupDone) return;
@@ -225,14 +261,33 @@ export default function HomePage() {
                     </Button>
                 </motion.div>
 
-                {/* Right Column: Commander */}
+                {/* Right Column: Commander & Gender Switch */}
                 <motion.div 
                   initial={{ x: 100, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.5, type: 'spring', stiffness: 50 }}
-                  className="flex-grow flex flex-col items-center justify-center"
+                  className="flex-grow flex flex-col items-center justify-center gap-2"
                 >
-                    <CommanderPortrait onTap={handleTap} />
+                    {/* Session Commander Gender Switch */}
+                    {playerProfile && sessionCommanderGender && (
+                        <div className="mb-2">
+                            <CommanderGenderSwitch
+                                sessionGender={sessionCommanderGender}
+                                defaultGender={playerProfile.commanderSex}
+                                onGenderChange={handleSessionGenderChange}
+                                onReset={handleResetToDefaultGender}
+                                compact={true}
+                            />
+                        </div>
+                    )}
+                    
+                    {/* Commander Portrait with Session Gender Override */}
+                    <CommanderPortrait 
+                        onTap={handleTap} 
+                        sessionCommanderGender={sessionCommanderGender || undefined}
+                    />
+                    
+                    {/* Out of Taps Warning */}
                     {isOutOfTaps && (
                         <motion.div
                             initial={{ y: 50, opacity: 0 }}
