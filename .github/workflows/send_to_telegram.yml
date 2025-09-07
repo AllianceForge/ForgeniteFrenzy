@@ -9,15 +9,6 @@ jobs:
   send_telegram:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-name: Send file to Telegram on push
-
-on: push
-
-jobs:
-  send_telegram:
-    runs-on: ubuntu-latest
-    steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
